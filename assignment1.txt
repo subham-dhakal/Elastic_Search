@@ -1,0 +1,76 @@
+
+# Creating the new index
+PUT hiking  
+
+# Creating a new document in id 1
+POST hiking/_doc/1
+{
+  "hiked_on": "2019/02/01",
+  "coordinator": "subham dhakal",
+  "total_students": 23,
+  "cost": 6534.67,
+  "bus_booked": true,
+  "checklist": [
+    "boots",
+    "bootles"
+  ],
+  "test_field": true
+}
+
+# Retriving the documents of id 1
+GET hiking/_doc/1
+
+
+# Creating a new document in id 2
+POST hiking/_doc/2
+{
+  "hiked_on": "2019/01/26",
+  "coordinator": "surendra adhikari",
+  "total_students": 18,
+  "cost": 3546.33,
+  "bus_booked": false,
+  "checklist": [
+    "food",
+    "trouser",
+    "bootles"
+  ],
+  "test_field": true
+}
+
+# Retriving the document of id 2
+GET hiking/_doc/2
+
+# Searching by using URI 
+GET hiking/_search?q=coordinator:subham
+GET hiking/_search?q=coordinator:adhikari
+
+
+# Updating the existing value without script tag
+POST hiking/_doc/1/_update
+{"doc":{"female_hikers":"11"}}
+
+
+# Deleting new fields and adding another at same time using script
+POST hiking/_doc/1/_update
+{"script": {
+  "lang": "painless",
+  "source":"ctx._source.remove('female_hikers'); ctx._source.male_hikers='12';"
+  }
+}
+
+
+# Updating the fields with params tag
+POST hiking/_doc/1/_update
+{"script": {
+  "lang": "painless",
+  "source":"ctx._source.total_students=params.total_stds",
+  "params": {"total_stds":"32"}
+ }
+}
+ 
+
+
+
+
+
+
