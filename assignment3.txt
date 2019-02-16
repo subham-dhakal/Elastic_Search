@@ -1,0 +1,302 @@
+
+#1
+GET product/_search
+{
+  "query": {
+    "range": {
+      "sold": {
+        "lte": 10
+      }
+    }
+  }
+}
+
+
+#2 
+GET product/_search
+{
+  "query": {
+    "range": {
+      "sold": {
+        "gte": 10,
+        "lt": 30
+      }
+    }
+  }
+}
+
+
+
+#3 ************************************
+GET product/_search
+{
+  "query": {
+    "match": {
+      "tags": "meat"
+    }
+  }
+}
+
+
+
+#4 ************************************
+GET product/_search
+{
+  "query": {
+    "match": {
+      "name": {
+        "query": "tomato paste"
+      }
+    }
+  }
+}
+
+#5
+GET product/_search
+{
+  "query": {
+    "match_phrase_prefix": {
+      "name": "past"
+    }
+  }
+}
+
+#6
+# 316 documents in product has non-empty tags field
+GET product/_search
+{
+  "query": {
+    "exists": {
+      "field": "tags"
+    }
+  }
+}
+
+#7
+GET shakespeare/_search
+{
+  "query": {
+    "terms_set": {
+      "text_entry": {
+        "terms": [
+          "men",
+          "holy",
+          "fight",
+          "prince",
+          "blessed",
+          "conquest",
+          "war",
+          "knife"
+        ],
+        "minimum_should_match_script": {
+          "source":"params.num_terms/2"
+        }
+      }
+    }
+  }
+}
+
+#8
+GET shakespeare/_search
+{
+  "query": {
+    "match": {
+      "text_entry": {
+        "query": "sape of likehood",
+        "fuzziness": 2,
+        "operator": "and"
+      }
+    }
+  }
+}
+
+
+#9 
+GET shakespeare/_search
+{
+  "query": {
+    "match": {
+      "text_entry": {
+        "query": "sape of likehood",
+        "fuzziness": 2,
+        "operator": "and"
+      }
+    }
+  }
+}
+
+#10
+GET shakespeare/_search
+{
+  "query": {
+    "multi_match": {
+      "query": "Henry IV",
+      "fields": ["play_name","speaker"]
+    }
+  }
+}
+
+#11
+GET shakespeare/_search
+{
+  "query": {
+    "match": {
+      "text_entry": {
+        "query": "lady in the light",
+        "cutoff_frequency": 0.002
+      }
+    }
+  }
+}
+
+GET shakespeare/_search
+{
+  "query": {
+    "common": {
+      "text_entry": {
+        "query": "fair and natural light",
+        "cutoff_frequency": 0.001
+      }
+    }
+  }
+}
+
+#12
+GET product/_search
+{
+  "query": {
+    "bool": {
+      "must": [
+        {
+          "term": {
+            "is_active": {
+              "value": "true"
+            }
+          }
+        },
+        {
+          "range": {
+            "in_stock": {
+              "gte": 10
+            }
+          }
+        },
+        {
+          "match": {
+            "tags": "meat wine"
+          }
+        }
+      ],
+      "filter": {
+        "range": {
+          "price": {
+            "gte": 150
+          }
+        }
+      },
+      "should": [
+        {
+          "range": {
+            "sold": {
+              "gte": 300
+            }
+          }
+        }
+      ]
+    }
+
+#13
+#creating index
+PUT college
+{
+  "mappings": {
+    "_doc": {
+      "properties": {
+        "batch": {
+          "type": "integer"
+        },
+        "students": {
+          "type": "nested",
+          "properties": {
+            "roll": {
+              "type": "integer"
+            },
+            "name":{
+              "type":"text"
+            },
+            "age":{
+              "type":"byte"
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+#inserting document
+PUT college/_doc/1
+{
+  "batch": 2020,
+  "students": [
+    {
+      "roll": 601,
+      "name": "Nabin Koirala",
+      "age": 20
+    },
+    {
+      "roll": 602,
+      "name": "Subham Dhakal",
+      "age": 21
+    },
+    {
+      "roll": 603,
+      "name": "Aamod Paudel",
+      "age": 22
+    }
+  ]
+}
+
+#query
+GET college/_search
+{
+  "query": {
+    "nested": {
+      "path": "students",
+      "ignore_unmapped":true,
+      "inner_hits": {}, 
+      "query": {
+        "range": {
+          "students.age": {
+            "gt": 10
+          }
+        }
+      }
+    }
+  }
+}
+
+
+#14
+POST _aliases
+{
+  "actions": [
+    {
+      "add": {
+        "index": "product",
+        "alias": "active_products",
+        "filter": {
+          "term": {
+            "is_active": "true"
+          }
+        }
+      }
+    }
+  ]
+}
+
+GET active_products/_search
+
+
+
+
