@@ -1,0 +1,387 @@
+
+#1
+PUT workshop
+{
+  "mappings": {
+    "_doc": {
+      "dynamic": false,
+      "properties": {
+        "teacher": {
+          "type": "text"
+        },
+        "teacher_contactno": {
+          "type": "keyword"
+        },
+        "id_no": {
+          "type": "long"
+          },
+        "address": {
+          "type": "text"
+        },
+        "location": {
+          "type": "geo_point"
+        },
+        "cource_covered": {
+          "type": "integer_range"
+        },
+        "time_taken": {
+          "type": "date_range",
+          "format": "MM-dd-yyyy HH:mm:ss"
+        },
+        "attendees": {
+          "type": "nested",
+          "properties": {
+            "name": {
+              "type": "text"
+            },
+            "batch": {
+              "type": "keyword"
+            }
+        }
+        } ,
+        "course_started": {
+          "type": "date",
+          "format": "dd/MM/yyyy"
+        },
+        "tags": {
+          "type": "text"
+          }
+        }
+      }
+    }
+  }
+
+
+#2
+PUT workshop/_doc/1
+{
+  "teacher": "subham dhakal",
+  "teacher_contactno": "9814368858",
+  "phone_no": 4621231,
+  "id_no": 508,
+  "geo_point": 74.9,
+  "distance_covered": {
+    "gt": 45,
+    "lt": 50
+  },
+   "address":"Nagarkot",
+   "course_covered":5,
+  "time_taken": {
+    "gte": "05-20-2017 05:00:00",
+    "lte": "05-20-2017 05:30:00"
+  },
+  "attendees": [{
+    "name":"Ram Bahadur",
+    "batch": 2020
+}],
+ "course_started": "12/03/2018",
+ "tags":["workshop","code"]
+ } 
+
+
+
+ 
+#3
+PUT workshop/_doc/2
+{
+  "teacher": "saurav dhakal",
+  "teacher_contactno": "9817305215",
+  "phone_no": 4621234,
+  "id_no": 608,
+  "geo_point": 64.9,
+  "distance_covered": {
+    "gt": 45,
+    "lt": 50
+  },
+   "address":"Biratnagar",
+   "course_covered":9,
+  "time_taken": {
+    "gte": "06-12-2017 05:00:00",
+    "lte": "05-10-2018 05:30:00"
+  },
+  "attendees": [{
+    "name":"Aajay bastola",
+    "batch": 2020
+}],
+ "course_started": "12/03/2018",
+ "tags":["workshop"]
+ }
+ 
+#4
+ 
+ PUT workshop/_doc/3
+{
+  "teacher": "aawaj shrestha",
+  "teacher_contactno": "9817305234",
+  "phone_no":23434,
+  "id_no": 603,
+  "geo_point": 64.9,
+  "distance_covered": {
+    "gt": 42,
+    "lt": 54
+  },
+   "address":"Biratchowk",
+   "course_covered":8,
+  "time_taken": {
+    "gte": "06-12-2017 05:00:00",
+    "lte": "05-10-2018 05:30:00"
+  },
+  "attendees": [{
+    "name":"raju bastola",
+    "batch": 2021
+}],
+ "course_started": "12/03/2018s",
+ "tags":["workshop"]
+ }
+
+
+#5
+
+
+
+#6
+
+
+#7
+http://localhost:9200/accounts/_doc/_search?q=?
+http://localhost:9200/accounts/_doc/_search?q=age:[30%20TO%2070]
+http://localhost:9200/accounts/_doc/_search?q=gender:F%20AND%20age:[25%20TO%20*]
+http://localhost:9200/accounts/_doc/_search?q=gender:M%20AND%20state:ME
+
+
+
+#8
+POST accounts/_update_by_query?conflicts=proceed
+{
+  "query": {
+    "match_all": {}
+  },
+  "script": {
+    "source": "ctx._source.expense_list=[]"
+  }
+}
+
+POST accounts/_update_by_query?conflicts=proceed
+{
+  "query": {
+    "range": {
+      "age": {
+        "gte": "30",
+        "lte": "70"
+      }
+    }
+  },
+  "script": {
+    "source": """
+    if (ctx._source.containsKey('expense_list')){
+      if (!ctx._source.expense_list.contains(params.valstd)){
+        ctx._source.expense_list.add(params.valstd);
+      }
+    }else{
+      ctx._source.expense_list=[];
+    }
+    """,
+    "params": {
+      "valstd": "student_loan"
+    }
+  }
+}
+
+POST accounts/_update_by_query?conflicts=proceed
+{
+  "query": {
+    "range": {
+      "age": {
+        "gte": "25",
+        "lte": "50"
+      }
+    }
+  },
+  "script": {
+    "source": """
+    if (ctx._source.containsKey('expense_list')){
+      if (!ctx._source.expense_list.contains(params.valcar)){
+        ctx._source.expense_list.add(params.valcar);
+      }
+      if (!ctx._source.expense_list.contains(params.valhouse)){
+        ctx._source.expense_list.add(params.valhouse);
+      }
+    }else{
+      ctx._source.expense_list=[];
+    }
+    """,
+    "params": {
+      "valcar": "car_loan",
+      "valhouse": "house_loan"
+    }
+  }
+}
+
+POST accounts/_update_by_query?conflicts=proceed
+{
+  "query": {
+    "range": {
+      "balance": {
+        "gte": "40000"
+      }
+    }
+  },
+  "script": {
+    "source": """
+    if (ctx._source.containsKey('expense_list')){
+      if (!ctx._source.expense_list.contains(params.val)){
+        ctx._source.expense_list.add(params.val);
+      }
+    }else{
+      ctx._source.expense_list=[];
+      
+    }
+    """,
+    "params": {
+      "val": "recreation"
+    }
+  }
+}
+
+POST accounts/_update_by_query?conflicts=proceed
+{
+  "query": {
+    "term": {
+      "state": {
+        "value": "pa"
+      }
+    }
+  },
+  "script": {
+    "source": "ctx._source.balance-=2000"
+  }
+}
+
+
+
+#7
+POST accounts/_delete_by_query
+{
+  "query": {
+    "term": {
+      "state": {
+        "value": "ky"
+      }
+    }
+  }
+}
+
+
+GET accounts/_search
+{
+  "query": {
+    "range": {
+      "age": {
+        "gte": 20,
+        "lte": 50
+      }
+    }
+  }
+}
+
+GET accounts/_search
+{
+  "query": {
+    "prefix": {
+      "firstname": "el"
+    }
+  }
+}
+
+GET accounts/_search
+{
+  "query": {
+    "wildcard": {
+      "firstname": "el*"
+    }
+  }
+}
+
+
+#9
+PUT college
+{
+  "mappings": {
+    "_doc": {
+      "dynamic": false,
+      "properties": {
+        "batch": {
+          "type": "integer"
+        },
+        "students": {
+          "type": "nested",
+          "properties": {
+            "id": {
+              "type": "integer"
+            },
+            "name": {
+              "type": "text"
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+PUT college/_doc/1
+{
+  "batch":2020,
+  "stuents":[{"id":601,"name":"Rabin rai"},
+  {"id":602,"name":"Albin badal"},
+  {"id":603,"name": "sita dahal"}
+  ]
+}
+
+PUT workshop
+{
+  "mappings": {
+    "_doc": {
+      "dynamic": false,
+      "properties": {
+        "students_id": {
+          "type": "integer"
+        },
+        "workshop_about": {
+          "type": "text"
+        },
+        "enrolled_year": {
+          "type": "date"
+        }
+      }
+    }
+  }
+}
+
+POST workshop/_doc/_bulk
+{"index":{"_id":1}}
+{"students_id":[521,602,523,633,535],"workshop_about":"elastic search","enrolled_year":"2018"}
+{"index":{"_id":2}}
+{"students_id":[510,601,534,613,532],"workshop_about":"Javascript","enrolled_year":"2017"}
+{"index":{"_id":3}}
+{"students_id":[501,502,534,522,532],"workshop_about":"Java","enrolled_year":"2018"}
+{"index":{"_id":4}}
+{"students_id":[520,522,524,511,523],"workshop_about":"Python Programming","enrolled_year":"2017"}
+{"index":{"_id":5}}
+{"students_id":[620,614,603,643,633],"workshop_about":"Quality Assurance","enrolled_year":"2018"}
+
+
+
+GET workshop/_search
+{
+    "query":{
+        "terms":{
+            "students_id":{
+                "index":"college",
+                "type":"_doc",
+                "id": "1",
+                "path":"students.id"
+            }
+        }
+    }
+}
